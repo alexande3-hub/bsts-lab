@@ -1,5 +1,6 @@
 package edu.grinnell.csc207.bsts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,37 +66,116 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
     }
 
     /**
+     * @param <T> the carrier type
+     * @param v the value to add to the tree
+     * @param cur the node within a tree that we eventually add v to
+     * @return the node/tree now with v attached
+     */
+    private Node<T> insertH(T v, Node<T> cur) {
+        if (cur == null) {
+            return new Node<>(v);
+        } else {
+            if (v.compareTo(cur.value) < 0) {
+                cur.left = insertH(v, cur.left);
+            } else {
+                cur.right = insertH(v, cur.right);
+            }
+            return cur;
+        }
+    }
+
+    /**
      * @param value the value to add to the tree
      */
     public void insert(T value) {
-        throw new UnsupportedOperationException();
+        root = insertH(value, root);
     }
 
     ///// Part 1: Contains
    
+    // Description: Contains should start at the top value to see if it equals the goal value.
+    // If not, it makes a recursive call to the left side, then to the right side,
+    // to see if the value exists in any of those locations.
+
+    /**
+     * @param <T> the carrier type
+     * @param v the value to find
+     * @param cur the node within a tree that may or may not contain v
+     * @return true iff this tree contains <code>v</code>
+     */
+    public boolean containsH(T v, Node<T> cur) {
+        if (cur == null) {
+            return false;
+        } else if (cur.value == v) {
+            return true; 
+        } else {
+            return (containsH(v, cur.left) || containsH(v, cur.right));
+        }
+    }
+
     /**
      * @param v the value to find
      * @return true iff this tree contains <code>v</code>
      */
     public boolean contains(T v) {
-        throw new UnsupportedOperationException();
+        return containsH(v, root);
     }
 
     ///// Part 2: Ordered Traversals
+    /// 
+    /// The in-order traversal would produce an in-order result.
+    /// 
+    
+
+    /**
+     * @param <T> the carrier type
+     * @param buf the buffer we use to append values in the tree
+     * @param node the node/tree that contains the values
+     */
+    public void stringHelper(StringBuffer buf, Node<T> node) {
+        if (node == null) {
+            return;
+        }
+        stringHelper(buf, node.left);
+        buf.append(node.value);
+        buf.append(", ");
+        stringHelper(buf, node.right);
+    }
+
 
     /**
      * @return the (linearized) string representation of this BST
      */
     @Override
     public String toString() {
-        throw new UnsupportedOperationException();
+        StringBuffer buf = new StringBuffer("[");
+        stringHelper(buf, root);
+        buf.append("]");
+        return buf.toString();
     }
+
+    /**
+     * @param <T> the carrier type
+     * @param buf the list we use to store values in the tree linearly
+     * @param node the node/tree that contains the values
+     */    
+    public void listHelper(List<T> lst, Node<T> node) {
+        if (node == null) {
+            return;
+        }
+        listHelper(lst, node.left);
+        lst.add(node.value);
+        listHelper(lst, node.right);
+    }
+
 
     /**
      * @return a list contains the elements of this BST in-order.
      */
     public List<T> toList() {
-        throw new UnsupportedOperationException();
+        List<T> lst = new ArrayList<>(this.size());
+        listHelper(lst, root);
+        return lst;
     }
 
     ///// Part 3: BST Sorting
@@ -107,7 +187,11 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
      * @implSpec <code>sort</code> runs in ___ time if the tree remains balanced. 
      */
     public static <T extends Comparable<? super T>> List<T> sort(List<T> lst) {
-        throw new UnsupportedOperationException();
+        BinarySearchTree<T> tree = new BinarySearchTree<T>();
+        for (int i = 0; i < lst.size(); i++) {
+            tree.insert(lst.get(i));
+        }
+        return tree.toList();
     }
 
     ///// Part 4: Deletion
